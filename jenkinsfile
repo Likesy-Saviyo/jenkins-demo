@@ -17,13 +17,24 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sh '''
-                    echo "Starting deployment..."
+                withCredentials([
+                    sshUserPrivateKey(
+                        credentialsId: 'deploy-server-ssh',
+                        keyFileVariable: 'SSH_KEY',
+                        usernameVariable: 'SSH_USER'
+                    )
+                ]) {
+                    sh '''
+                        echo "Starting deployment..."
 
-                    scp -o StrictHostKeyChecking=no index.html likesy@192.168.56.101:/var/www/html/
+                        scp -i "$SSH_KEY" \
+                            -o StrictHostKeyChecking=no \
+                            index.html \
+                            "$SSH_USER@192.168.56.101:/var/www/html/"
 
-                    echo "Deployment completed successfully."
-                '''
+                        echo "Deployment completed successfully."
+                    '''
+                }
             }
         }
     }
