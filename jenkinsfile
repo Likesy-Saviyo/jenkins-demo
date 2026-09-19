@@ -5,13 +5,31 @@ pipeline {
 
         stage('Build') {
             steps {
-                echo 'Building the application...'
+                sh '''
+                    echo "Starting build..."
+
+                    if [ -f index.html ]; then
+                        echo "index.html found."
+                    else
+                        echo "ERROR: index.html not found."
+                        exit 1
+                    fi
+
+                    echo "Build completed successfully."
+                '''
             }
         }
 
         stage('Test') {
             steps {
-                echo 'Testing the application...'
+                sh '''
+                    echo "Starting tests..."
+
+                    grep -q "Jenkins" index.html
+                    echo "HTML content test passed."
+
+                    echo "Tests completed successfully."
+                '''
             }
         }
 
