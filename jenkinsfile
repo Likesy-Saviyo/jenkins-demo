@@ -25,7 +25,9 @@ pipeline {
                 sh '''
                     echo "Starting tests..."
 
-grep -q "THIS_TEXT_DOES_NOT_EXIST" index.html
+                    grep -q "Jenkins" index.html
+                    echo "HTML content test passed."
+
                     echo "Tests completed successfully."
                 '''
             }
