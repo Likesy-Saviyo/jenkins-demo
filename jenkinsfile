@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     stages {
+
         stage('Build') {
             steps {
                 echo 'Building the application...'
@@ -16,7 +17,13 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                echo 'Deploying the application...'
+                sh '''
+                    echo "Starting deployment..."
+
+                    scp -o StrictHostKeyChecking=no index.html likesy@192.168.56.101:/var/www/html/
+
+                    echo "Deployment completed successfully."
+                '''
             }
         }
     }
