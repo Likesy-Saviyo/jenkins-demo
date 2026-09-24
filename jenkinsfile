@@ -56,4 +56,18 @@ pipeline {
             }
         }
     }
+
+    post {
+        success {
+            echo '🎉 Pipeline completed successfully!'
+        }
+
+        failure {
+            echo '❌ Pipeline failed. Check the failed stage and console log.'
+        }
+
+        always {
+            echo 'Pipeline execution finished.'
+        }
+    }
 }
