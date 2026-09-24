@@ -33,40 +33,25 @@ pipeline {
             }
         }
 
-        stage('Docker Build') {
+        stage('Docker Compose Deploy') {
             steps {
                 sh '''
-                    echo "Building Docker image..."
+                    echo "Starting Docker Compose deployment..."
 
-                    docker build -t jenkins-demo:latest .
+                    docker compose down || true
 
-                    echo "Docker image built successfully."
-                '''
-            }
-        }
+                    docker compose up -d --build
 
-        stage('Docker Deploy') {
-            steps {
-                sh '''
-                    echo "Deploying Docker container..."
-
-                    docker stop jenkins-demo-container || true
-                    docker rm jenkins-demo-container || true
-
-                    docker run -d \
-                        -p 8081:80 \
-                        --name jenkins-demo-container \
-                        jenkins-demo:latest
-
-                    echo "Docker container deployed successfully."
+                    echo "Docker Compose deployment completed successfully."
                 '''
             }
         }
     }
 
     post {
+
         success {
-            echo '🎉 Docker CI/CD pipeline completed successfully!'
+            echo '🎉 Docker Compose CI/CD pipeline completed successfully!'
         }
 
         failure {
