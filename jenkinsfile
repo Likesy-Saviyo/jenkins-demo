@@ -33,20 +33,41 @@ pipeline {
             }
         }
 
-        stage('Docker Compose Deploy') {
+       stage('Docker Compose Deploy') {
     steps {
         sh '''
             echo "Starting Docker Compose deployment..."
 
-            docker rm -f jenkins-demo-compose || true
+            echo "Saving current image..."
+            OLD_IMAGE=$(docker image inspect jenkins-demo:latest --format '{{.Id}}')
 
-            docker compose up -d --build
+            echo "Building new Docker image..."
+            docker compose build
 
+            echo "Starting new deployment..."
+            docker compose up -d
+
+            echo "Waiting for application..."
             sleep 5
 
-            curl -f http://localhost:8082
+            echo "Running health check..."
 
-            echo "Application health check passed."
+            if curl -f http://localhost:8082; then
+                echo "Application health check passed."
+                echo "New deployment is healthy."
+            else
+                echo "Health check failed!"
+                echo "Rolling back to previous image..."
+
+                docker compose down
+
+                docker tag "$OLD_IMAGE" jenkins-demo:latest
+
+                docker compose up -d
+
+                echo "Rollback completed."
+                exit 1
+            fi
 
             echo "Docker Compose deployment completed successfully."
         '''
