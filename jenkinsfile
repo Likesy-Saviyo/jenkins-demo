@@ -33,33 +33,40 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Docker Build') {
             steps {
-                withCredentials([
-                    sshUserPrivateKey(
-                        credentialsId: 'deploy-server-ssh',
-                        keyFileVariable: 'SSH_KEY',
-                        usernameVariable: 'SSH_USER'
-                    )
-                ]) {
-                    sh '''
-                        echo "Starting deployment..."
+                sh '''
+                    echo "Building Docker image..."
 
-                        scp -i "$SSH_KEY" \
-                            -o StrictHostKeyChecking=no \
-                            index.html \
-                            "$SSH_USER@192.168.56.101:/var/www/html/"
+                    docker build -t jenkins-demo:latest .
 
-                        echo "Deployment completed successfully."
-                    '''
-                }
+                    echo "Docker image built successfully."
+                '''
+            }
+        }
+
+        stage('Docker Deploy') {
+            steps {
+                sh '''
+                    echo "Deploying Docker container..."
+
+                    docker stop jenkins-demo-container || true
+                    docker rm jenkins-demo-container || true
+
+                    docker run -d \
+                        -p 8081:80 \
+                        --name jenkins-demo-container \
+                        jenkins-demo:latest
+
+                    echo "Docker container deployed successfully."
+                '''
             }
         }
     }
 
     post {
         success {
-            echo '🎉 Pipeline completed successfully!'
+            echo '🎉 Docker CI/CD pipeline completed successfully!'
         }
 
         failure {
