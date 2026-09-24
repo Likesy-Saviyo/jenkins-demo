@@ -42,6 +42,12 @@ pipeline {
 
             docker compose up -d --build
 
+            sleep 5
+
+            curl -f http://localhost:8082
+
+            echo "Application health check passed."
+
             echo "Docker Compose deployment completed successfully."
         '''
     }
