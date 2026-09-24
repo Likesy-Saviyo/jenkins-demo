@@ -34,18 +34,18 @@ pipeline {
         }
 
         stage('Docker Compose Deploy') {
-            steps {
-                sh '''
-                    echo "Starting Docker Compose deployment..."
+    steps {
+        sh '''
+            echo "Starting Docker Compose deployment..."
 
-                    docker compose down || true
+            docker rm -f jenkins-demo-compose || true
 
-                    docker compose up -d --build
+            docker compose up -d --build
 
-                    echo "Docker Compose deployment completed successfully."
-                '''
-            }
-        }
+            echo "Docker Compose deployment completed successfully."
+        '''
+    }
+}
     }
 
     post {
